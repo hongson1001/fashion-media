@@ -22,7 +22,7 @@ jobs:
         run: docker save my-app -o my-app.tar
 
       - name: Upload Image Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-image
           path: my-app.tar
