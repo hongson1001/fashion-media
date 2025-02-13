@@ -37,13 +37,15 @@ jobs:
     needs: build
     steps:
       - name: Install Docker & Docker Compose (if not installed)
+        shell: pwsh
         run: |
-          if ! command -v docker-compose &> /dev/null
-          then
-            echo "Installing Docker Compose..."
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
-          fi
+          if (-Not (Get-Command docker-compose -ErrorAction SilentlyContinue)) {
+            Write-Output "Docker Compose is not installed. Installing..."
+            Invoke-WebRequest -Uri "https://github.com/docker/compose/releases/latest/download/docker-compose-windows-x86_64.exe" -OutFile "$env:ProgramFiles\Docker\docker-compose.exe"
+             Write-Output "Docker Compose installed successfully!"
+            } else {
+            Write-Output "Docker Compose is already installed."
+            }
 
       - name: Download Image Artifact
         uses: actions/download-artifact@v4
