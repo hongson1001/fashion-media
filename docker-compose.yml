@@ -1,24 +1,45 @@
-version: '3.8'
+name: Local CI/CD with Docker Compose
 
-services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: fashion-media
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "6001:3000"
-    volumes:
-      - ./tempMedia:/usr/src/app/tempMedia
-      - ./uploads:/usr/src/app/uploads
-    environment:
-      - TZ= Asia/Ho_Chi_Minh
-    networks:
-      - back-end
+on:
+  push:
+    branches:
+      - main
 
-networks:
-  back-end:
-    driver: bridge
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build & Save Docker Image
+        run: |
+          docker-compose build
+          docker save -o my-app.tar fashion-media
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: my-app.tar
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Download Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load Docker Image
+        run: docker load -i my-app.tar
+
+      - name: Stop & Remove old container
+        run: docker-compose down || true
+
+      - name: Run Docker Compose
+        run: docker-compose up --build -d
