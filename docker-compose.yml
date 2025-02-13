@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fashion-media
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "6001:3000"
+    volumes:
+      - ./tempMedia:/usr/src/app/tempMedia
+      - ./uploads:/usr/src/app/uploads
+    environment:
+      - TZ= Asia/Ho_Chi_Minh
+    networks:
+      - back-end
+
+networks:
+  back-end:
+    driver: bridge
