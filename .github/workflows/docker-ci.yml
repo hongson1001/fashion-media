@@ -59,7 +59,10 @@ jobs:
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Stop & Remove old container
-        run: docker-compose down || true
+        shell: powershell
+        run: |
+            docker-compose down
+            if ($?) { Write-Output "Docker Compose stopped successfully" } else { Write-Output "Ignoring error" }
 
       - name: Run Docker Compose
         run: docker-compose up --build -d
