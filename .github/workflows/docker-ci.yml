@@ -37,7 +37,7 @@ jobs:
     needs: build
     steps:
       - name: Install Docker & Docker Compose (if not installed)
-        shell: pwsh
+        shell: powershell
         run: |
           if (-Not (Get-Command docker-compose -ErrorAction SilentlyContinue)) {
             Write-Output "Docker Compose is not installed. Installing..."
